@@ -1,28 +1,22 @@
 package requests;
 
-import config.Config;
 import enums.RequestType;
-import enums.ResponseProcessor;
 import objects.Query;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import static org.junit.Assert.*;
 
-public class MemberRequest {
+public class MemberRequestTest {
 
-    private final int estimatedQueryCost = 1;
-    private String query;
-    private ResponseProcessor responseProcessor;
-    private String organizationName;
-    private RequestType requestType;
+    private MemberRequest memberRequest;
+    private String expectedGeneratedQueryContent;
 
-    public MemberRequest(String organizationName, String memberID) {
-        this.organizationName = organizationName;
-        this.query = "{\n" +
-                "node(id: \"" + memberID + "\") {\n" +
+    @Before
+    public void setUp() throws Exception {
+        this.memberRequest = new MemberRequest("adessoAG", "testMemberID");
+        this.expectedGeneratedQueryContent = "{\n" +
+                "node(id: \"testMemberID\") {\n" +
                 "... on User {\n" +
                 "name\n" +
                 "id\n" +
@@ -35,7 +29,7 @@ public class MemberRequest {
                 "defaultBranchRef {\n" +
                 "target {\n" +
                 "... on Commit {\n" +
-                "history(first: 100, since: \"" + getDateToStartCrawlingInISO8601UTC() + "\"  ,author: {id: \"" + memberID + "\"}) {\n" +
+                "history(first: 100, since: \"" + this.memberRequest.getDateToStartCrawlingInISO8601UTC() + "\"  ,author: {id: \"testMemberID\"}) {\n" +
                 "nodes {\n" +
                 "committedDate\n" +
                 "url\n" +
@@ -66,19 +60,23 @@ public class MemberRequest {
                 "resetAt\n" +
                 "}\n" +
                 "}";
-
-        this.responseProcessor = ResponseProcessor.MEMBER;
-        this.requestType = RequestType.MEMBER;
     }
 
-    protected String getDateToStartCrawlingInISO8601UTC() {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(tz);
-        return df.format(new Date(System.currentTimeMillis() - Config.PAST_DAYS_TO_CRAWL_IN_MS));
+    @Test
+    public void checkIfOrganizationNameIsCorrectInGeneratedQuery() {
+        Query query = this.memberRequest.generateQuery();
+        assertEquals(query.getOrganizationName(), "adessoAG");
     }
 
-    public Query generateQuery() {
-        return new Query(this.organizationName, this.query, this.responseProcessor, this.requestType, this.estimatedQueryCost);
+    @Test
+    public void checkIfRequestTypeIsCorrectInGeneratedQuery() {
+        Query query = this.memberRequest.generateQuery();
+        assertEquals(query.getQueryRequestType(), RequestType.MEMBER);
+    }
+
+    @Test
+    public void checkIfQueryContentIsGeneratedCorretly() {
+        Query query = this.memberRequest.generateQuery();
+        assertEquals(query.getQuery(), this.expectedGeneratedQueryContent);
     }
 }

@@ -10,12 +10,12 @@ import static org.junit.Assert.*;
 public class RepositoryRequestTest {
 
     private RepositoryRequest repositoryRequest;
-    private String generatedQueryContent;
+    private String expectedGeneratedQueryContent;
 
     @Before
     public void setUp() throws Exception {
         this.repositoryRequest = new RepositoryRequest("adessoAG", "testEndCursor");
-        this.generatedQueryContent = "query {\n" +
+        this.expectedGeneratedQueryContent = "query {\n" +
                 "organization(login: \"adessoAG\") {\n" +
                 "repositories(first: 100 after: testEndCursor) {\n" +
                 "pageInfo {\n" +
@@ -84,6 +84,6 @@ public class RepositoryRequestTest {
     @Test
     public void checkIfQueryContentIsGeneratedCorretly() {
         Query query = this.repositoryRequest.generateQuery();
-        assertEquals(query.getQuery(), this.generatedQueryContent);
+        assertEquals(query.getQuery(), this.expectedGeneratedQueryContent);
     }
 }
