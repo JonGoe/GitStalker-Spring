@@ -90,7 +90,7 @@ public class RequestManager {
         return allRequestQuerys;
     }
 
-    private String formatInput(String input) {
+    protected String formatInput(String input) {
         return input.replaceAll("\\s+", "").toLowerCase();
     }
 }

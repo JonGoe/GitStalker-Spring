@@ -1,28 +1,23 @@
 package requests;
 
-import config.Config;
 import enums.RequestType;
-import enums.ResponseProcessor;
 import objects.Query;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import static org.junit.Assert.*;
 
-public class RepositoryRequest {
+public class RepositoryRequestTest {
 
-    private final int estimatedQueryCost = 2;
-    private String query;
-    private ResponseProcessor responseProcessor;
-    private String organizationName;
-    private RequestType requestType;
+    private RepositoryRequest repositoryRequest;
+    private String generatedQueryContent;
 
-    public RepositoryRequest(String organizationName, String endCursor) {
-        this.organizationName = organizationName;
-        this.query = "query {\n" +
-                "organization(login: \"" + organizationName + "\") {\n" +
-                "repositories(first: 100 after: " + endCursor + ") {\n" +
+    @Before
+    public void setUp() throws Exception {
+        this.repositoryRequest = new RepositoryRequest("adessoAG", "testEndCursor");
+        this.generatedQueryContent = "query {\n" +
+                "organization(login: \"adessoAG\") {\n" +
+                "repositories(first: 100 after: testEndCursor) {\n" +
                 "pageInfo {\n" +
                 "hasNextPage\n" +
                 "endCursor\n" +
@@ -45,7 +40,7 @@ public class RepositoryRequest {
                 "defaultBranchRef {\n" +
                 "target {\n" +
                 "... on Commit {\n" +
-                "history(first: 50, since: \"" + this.getDateToStartCrawlingInISO8601UTC() + "\") {\n" +
+                "history(first: 50, since: \"" + this.repositoryRequest.getDateToStartCrawlingInISO8601UTC() + "\") {\n" +
                 "nodes {\n" +
                 "committedDate\n" +
                 "}\n" +
@@ -72,19 +67,23 @@ public class RepositoryRequest {
                 "resetAt\n" +
                 "}\n" +
                 "}";
-
-        this.responseProcessor = ResponseProcessor.REPOSITORY;
-        this.requestType = RequestType.REPOSITORY;
     }
 
-    public Query generateQuery() {
-        return new Query(this.organizationName, this.query, this.responseProcessor, this.requestType, this.estimatedQueryCost);
+    @Test
+    public void checkIfOrganizationNameIsCorrectInGeneratedQuery() {
+        Query query = this.repositoryRequest.generateQuery();
+        assertEquals(query.getOrganizationName(), "adessoAG");
     }
 
-    protected String getDateToStartCrawlingInISO8601UTC() {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(tz);
-        return df.format(new Date(System.currentTimeMillis() - Config.PAST_DAYS_TO_CRAWL_IN_MS));
+    @Test
+    public void checkIfRequestTypeIsCorrectInGeneratedQuery() {
+        Query query = this.repositoryRequest.generateQuery();
+        assertEquals(query.getQueryRequestType(), RequestType.REPOSITORY);
+    }
+
+    @Test
+    public void checkIfQueryContentIsGeneratedCorretly() {
+        Query query = this.repositoryRequest.generateQuery();
+        assertEquals(query.getQuery(), this.generatedQueryContent);
     }
 }

@@ -62,10 +62,4 @@ public class TeamRequest extends Request {
         return new Query(this.organizationName, this.query, this.responseProcessor, this.requestType, this.estimatedQueryCost);
     }
 
-    private String getDateToStartCrawlingInISO8601UTC() {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(tz);
-        return df.format(new Date(System.currentTimeMillis() - Config.PAST_DAYS_TO_CRAWL_IN_MS));
-    }
 }

@@ -71,14 +71,6 @@ public class MemberRequest {
         this.requestType = RequestType.MEMBER;
     }
 
-    private String formatMemberIDs(List<String> memberIDs) {
-        String formattedString = "";
-        for (String memberID : memberIDs) {
-            formattedString += "\"" + memberID.toString() + "\",";
-        }
-        return formattedString;
-    }
-
     private String getDateToStartCrawlingInISO8601UTC() {
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
